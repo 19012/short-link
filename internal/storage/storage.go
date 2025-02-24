@@ -5,6 +5,6 @@ import "errors"
 // common inforation for all storage implementations
 
 var (
-	ErrUrlNotFound = errors.New("url not found")
-	ErrUrlExists   = errors.New("url exists")
+	ErrURLNotFound = errors.New("url not found")
+	ErrURLExists   = errors.New("url exists")
 )

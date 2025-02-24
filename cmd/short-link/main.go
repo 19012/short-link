@@ -28,7 +28,6 @@ func main() {
 		os.Exit(1)
 	}
 	_ = storage
-
 	// TODO: router(chi, chi render)
 	// TODO: run service
 }
