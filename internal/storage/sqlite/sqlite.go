@@ -3,6 +3,7 @@ package sqlite
 import (
 	"19012/short-link/internal/storage"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/mattn/go-sqlite3"
@@ -39,8 +40,9 @@ func New(storagePath string) (*Storage, error) {
 	return &Storage{db: db}, nil
 }
 
-func (s *Storage) SaveUrl(urlToSave string, alias string) (int64, error) {
-	op := "storage.sqlite.SaveUrl"
+func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error) {
+	op := "storage.sqlite.SaveURL"
+
 	stmt, err := s.db.Prepare("insert into url(url,alias) values(?,?)")
 	if err != nil {
 		return 0, fmt.Errorf("%s :%w", op, err)
@@ -59,4 +61,23 @@ func (s *Storage) SaveUrl(urlToSave string, alias string) (int64, error) {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 	return id, nil
+}
+
+func (s *Storage) GetURL(alias string) (string, error) {
+	op := "storage.sqlite.GetURL"
+
+	stmt, err := s.db.Prepare("select url from url where alias  = ?")
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	var res string
+	err = stmt.QueryRow(alias).Scan(&res)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
+		}
+		return "", fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
+	}
+	return res, nil
 }
